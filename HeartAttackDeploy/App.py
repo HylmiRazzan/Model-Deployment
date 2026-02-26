@@ -15,8 +15,8 @@ def main():
 
     gender_label = st.selectbox("Pilih Gender", options=list(gender_options.keys()))
     gender = gender_options[gender_label]
-    st.write(f"Data yang akan dikirim ke model: {gender}")
 
-
+    
 if __name__ == '__main__':
     main()
+
