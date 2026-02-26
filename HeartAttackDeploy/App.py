@@ -13,4 +13,7 @@ def main():
 
     gender_options = {"Pria": 1, "Wanita": 0}
 
-    gender = st.selectbox("Pilih Gender", options=list(gender_options.keys()))
+    gender_label = st.selectbox("Pilih Gender", options=list(gender_options.keys()))
+    gender = gender_options[gender_label]
+    st.write(f"Data yang akan dikirim ke model: {gender}")
+
