@@ -6,8 +6,9 @@ import pandas as pd
 
 # Load preprocess and model from MLflow
 # Load preprocessor
-scaler = joblib.load("preprocessor.pkl")
-model = joblib.load("model.pkl")
+BASE_DIR = os.path.dirname(__file__)
+scaler = joblib.load(os.path.join(BASE_DIR, "preprocessor.pkl"))
+model = joblib.load((os.path.join(BASE_DIR, "model.pkl"))
 
 def main():
     st.title('Machine Learning Iris Prediction Model Deployment')
