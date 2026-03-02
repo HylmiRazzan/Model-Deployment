@@ -19,13 +19,13 @@ if os.path.exists(img_path):
         }}
         .block-container {{
             margin-left: 0 !important;
-            margin-right: 5% !important;
+            margin-right: auto !important;
             padding-left: 5% !important;
             padding-top: 3% !important;
             padding-bottom: 100px !important;
             max-width: 600px !important;
             background-color: rgba(0, 0, 0, 0.85);
-            border-radius: 0 20px 20px 0;
+            border-radius: 0 20px 20px 10px;
             min-height: 100vh !important;
             height: auto !important;
             overflow-y: auto !important;
@@ -91,6 +91,7 @@ def make_prediction(features):
     return prediction[0]
 if __name__ == '__main__':
     main()
+
 
 
 
