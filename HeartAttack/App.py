@@ -21,7 +21,7 @@ if os.path.exists(img_path):
             margin-left: 0 !important;
             margin-right: auto !important;
             padding-left: 5% !important;
-            padding-right: 100px !important;
+            padding-right: 50px !important;
             padding-top: 3% !important;
             padding-bottom: 100px !important;
             max-width: 600px !important;
@@ -92,6 +92,7 @@ def make_prediction(features):
     return prediction[0]
 if __name__ == '__main__':
     main()
+
 
 
 
