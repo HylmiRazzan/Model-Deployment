@@ -4,7 +4,9 @@ import os
 import base64
 import numpy as np
 
+BASE_DIR = os.path.dirname(__file__)
 img_path = os.path.join(BASE_DIR, "HeartBackground.png")
+
 if os.path.exists(img_path):
     with open(img_path, "rb") as f:
         data = base64.b64encode(f.read()).decode()
@@ -32,7 +34,7 @@ if os.path.exists(img_path):
         </style>
         """, unsafe_allow_html=True)
 
-BASE_DIR = os.path.dirname(__file__)
+
 model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
 
 def main():
@@ -89,4 +91,5 @@ def make_prediction(features):
     return prediction[0]
 if __name__ == '__main__':
     main()
+
 
