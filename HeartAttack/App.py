@@ -4,9 +4,9 @@ import os
 import base64
 import numpy as np
 
-# Masukkan CSS di atas main()
-if os.path.exists("HeartBackground.png"):
-    with open("HeartBackground.png", "rb") as f:
+img_path = os.path.join(BASE_DIR, "HeartBackground.png")
+if os.path.exists(img_path):
+    with open(img_path, "rb") as f:
         data = base64.b64encode(f.read()).decode()
     st.markdown(f"""
         <style>
@@ -89,3 +89,4 @@ def make_prediction(features):
     return prediction[0]
 if __name__ == '__main__':
     main()
+
