@@ -1,13 +1,13 @@
 import streamlit as st
 import joblib
-import os
 import base64
 import numpy as np
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(__file__)
-img_path = os.path.join(BASE_DIR, "Spongebob.jpg")
+BASE_DIR = Path(__file__).parent
+img_path = BASE_DIR / "Spongebob.jpg"
 
-if os.path.exists(img_path):
+if img_path.exists():
     with open(img_path, "rb") as f:
         data = base64.b64encode(f.read()).decode()
     st.markdown(f"""
@@ -36,7 +36,7 @@ if os.path.exists(img_path):
         """, unsafe_allow_html=True)
 
 
-model = joblib.load(os.path.join(BASE_DIR, "model.pkl"))
+model = joblib.load(BASE_DIR/ "model.pkl")
 
 def main():
     st.title('Heart Attack Risk Prediction')
@@ -92,6 +92,7 @@ def make_prediction(features):
     return prediction[0]
 if __name__ == '__main__':
     main()
+
 
 
 
