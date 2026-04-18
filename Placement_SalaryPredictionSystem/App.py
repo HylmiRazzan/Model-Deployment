@@ -2,8 +2,17 @@ import streamlit as st
 import joblib
 import pandas as pd
 import os
+from pathlib import Path
 
-BASE_DIR = os.path.dirname(__file__)
+BASE_DIR = Path(__file__).resolve().parent
+ARTIFACTS_DIR = BASE_DIR / "artifacts"
+
+def load_pickle(file_path):
+    try:
+        return joblib.load(file_path)
+    except FileNotFoundError:
+        st.error(f"File Nor Found: {file_path}.")
+        st.stop()
 
 artifact = joblib.load(os.path.join(BASE_DIR, "preprocess_artifact.pkl"))
 preprocess = artifact["preprocessor"]
