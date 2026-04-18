@@ -5,21 +5,27 @@ import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-ARTIFACTS_DIR = BASE_DIR / "artifacts"
 
-def load_pickle(file_path):
-    try:
-        return joblib.load(file_path)
-    except FileNotFoundError:
-        st.error(f"File Nor Found: {file_path}.")
+ARTIFACTS_PATH = BASE_DIR / "artifacts"
+
+def load_model_file(filename):
+    path = ARTIFACTS_PATH / filename
+    if not path.exists():
+        path = BASE_DIR / filename
+    
+    if path.exists():
+        return joblib.load(path)
+    else:
+        st.error(f"File tidak ditemukan: {filename}")
+        st.info(f"Cek folder: {path}")
         st.stop()
 
-artifact = joblib.load(os.path.join(BASE_DIR, "preprocess_artifact.pkl"))
+artifact = load_model_file("preprocess_artifact.pkl")
 preprocess = artifact["preprocessor"]
 feature_names = artifact["feature_names"]
 
-model_clas = joblib.load(os.path.join(BASE_DIR, "model_clas.pkl"))
-model_reg = joblib.load(os.path.join(BASE_DIR, "model_reg.pkl"))
+model_clas = load_model_file("model_clas.pkl")
+model_reg = load_model_file("model_reg.pkl")
 
 def get_input():
 
