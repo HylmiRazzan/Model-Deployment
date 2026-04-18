@@ -1,27 +1,23 @@
 import streamlit as st
 import joblib
 import pandas as pd
-import os
 from pathlib import Path
 
+# --- KONFIGURASI PATH ---
 BASE_DIR = Path(__file__).resolve().parent
 
 def load_file(filename):
-    # Coba cari di folder root
-    path_root = BASE_DIR / filename
-    # Coba cari di folder artifacts
     path_artifacts = BASE_DIR / "artifacts" / filename
+    path_root = BASE_DIR / filename
     
-    if path_root.exists():
-        return joblib.load(path_root)
-    elif path_artifacts.exists():
+    if path_artifacts.exists():
         return joblib.load(path_artifacts)
+    elif path_root.exists():
+        return joblib.load(path_root)
     else:
-        st.error(f"Kritis: File '{filename}' tidak ditemukan di {BASE_DIR} maupun di {BASE_DIR}/artifacts/")
-        st.info("Pastikan kamu sudah melakukan 'git push' untuk folder artifacts ke GitHub.")
+        st.error(f"File '{filename}' Not Found.")
         st.stop()
 
-# --- PROSES LOAD ---
 artifact = load_file("preprocess_artifact.pkl")
 preprocess = artifact["preprocessor"]
 feature_names = artifact["feature_names"]
@@ -30,9 +26,7 @@ model_clas = load_file("model_clas.pkl")
 model_reg = load_file("model_reg.pkl")
 
 def get_input():
-
     with st.form("input_form"):
-
         st.subheader("Student Profile Input")
 
         col1, col2, col3 = st.columns(3)
@@ -58,22 +52,29 @@ def get_input():
             sleep = st.number_input("Sleep Hours", 0, 12, 6)
             stress = st.number_input("Stress Level", 0, 10, 5)
 
-        market = st.number_input("Marketability", 0, 10, 5)
-        external = st.number_input("External Score", 0, 10, 5)
-        potential = st.number_input("Potential", 0, 10, 5)
+        st.divider()
+        col_m1, col_m2, col_m3 = st.columns(3)
+        with col_m1:
+            market = st.number_input("Marketability", 0, 10, 5)
+        with col_m2:
+            external = st.number_input("External Score", 0, 10, 5)
+        with col_m3:
+            potential = st.number_input("Potential", 0, 10, 5)
 
-        gender = st.selectbox("Gender", ["Male", "Female"])
-        branch = st.selectbox("Branch", ["CS", "IT", "ECE", "ME"])
+        col_cat1, col_cat2 = st.columns(2)
+        with col_cat1:
+            gender = st.selectbox("Gender", ["Male", "Female"])
+            branch = st.selectbox("Branch", ["CS", "IT", "ECE", "ME"])
+            part_time = st.selectbox("Part Time Job", ["No", "Yes"])
 
-        part_time = st.selectbox("Part Time Job", ["No", "Yes"])
-        internet = st.selectbox("Internet Access", ["No", "Yes"])
-
-        family_income = st.selectbox("Family Income", ["Low", "Medium", "High"])
-        extracurricular = st.selectbox("Extracurricular", ["Low", "Medium", "High"])
+        with col_cat2:
+            internet = st.selectbox("Internet Access", ["No", "Yes"])
+            family_income = st.selectbox("Family Income", ["Low", "Medium", "High"])
+            extracurricular = st.selectbox("Extracurricular", ["Low", "Medium", "High"])
 
         city_tier = st.selectbox("City Tier", ["Tier 1", "Tier 2", "Tier 3"])
 
-        submitted = st.form_submit_button("Predict")
+        submitted = st.form_submit_button("Predict Now")
 
     if submitted:
         return pd.DataFrame([{
@@ -103,44 +104,34 @@ def get_input():
             "extracurricular_involvement": extracurricular,
             "city_tier": city_tier
         }])
-
     return None
 
-
 def main():
-
+    st.set_page_config(page_title="Placement Predictor", page_icon="🎓")
     st.title("Placement & Salary Prediction System")
-    st.write("Clean ML Pipeline: Classification & Regression")
-
+    
     input_df = get_input()
 
     if input_df is not None:
+        # Transformasi Data
+        X_transformed = preprocess.transform(input_df)
+        X = pd.DataFrame(X_transformed, columns=feature_names)
 
-        X = preprocess.transform(input_df)
-        X = pd.DataFrame(X, columns=feature_names)
-
-
+        # Prediksi Klasifikasi
         placed = model_clas.predict(X)[0]
 
-        st.subheader("Result")
+        st.markdown("---")
+        st.subheader("Prediction Results")
 
         if placed == 0:
-            st.error("Not Placed")
+            st.error("### Prediction: Not Placed")
+            st.write("Saran: Tingkatkan nilai CGPA dan ikuti lebih banyak magang (internship).")
         else:
-            st.success("Placed")
-
+            st.success("### Prediction: Placed")
+            
+            # Prediksi Regresi (Hanya jika Placed)
             salary = model_reg.predict(X)[0]
-
-            col1, col2 = st.columns(2)
-
-            with col1:
-                st.metric("Salary (LPA)", f"{salary:.2f}")
-
-            with col2:
-                st.info("Benchmark: 5 LPA")
-
-            st.bar_chart({"Salary": [salary], "Benchmark": [5]})
-
+            st.metric(label="Estimated Salary (LPA)", value=f"{salary:.2f}")
 
 if __name__ == "__main__":
     main()
