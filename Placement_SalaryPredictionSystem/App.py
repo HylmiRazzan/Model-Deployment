@@ -6,26 +6,28 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
 
-ARTIFACTS_PATH = BASE_DIR / "artifacts"
-
-def load_model_file(filename):
-    path = ARTIFACTS_PATH / filename
-    if not path.exists():
-        path = BASE_DIR / filename
+def load_file(filename):
+    # Coba cari di folder root
+    path_root = BASE_DIR / filename
+    # Coba cari di folder artifacts
+    path_artifacts = BASE_DIR / "artifacts" / filename
     
-    if path.exists():
-        return joblib.load(path)
+    if path_root.exists():
+        return joblib.load(path_root)
+    elif path_artifacts.exists():
+        return joblib.load(path_artifacts)
     else:
-        st.error(f"File tidak ditemukan: {filename}")
-        st.info(f"Cek folder: {path}")
+        st.error(f"Kritis: File '{filename}' tidak ditemukan di {BASE_DIR} maupun di {BASE_DIR}/artifacts/")
+        st.info("Pastikan kamu sudah melakukan 'git push' untuk folder artifacts ke GitHub.")
         st.stop()
 
-artifact = load_model_file("preprocess_artifact.pkl")
+# --- PROSES LOAD ---
+artifact = load_file("preprocess_artifact.pkl")
 preprocess = artifact["preprocessor"]
 feature_names = artifact["feature_names"]
 
-model_clas = load_model_file("model_clas.pkl")
-model_reg = load_model_file("model_reg.pkl")
+model_clas = load_file("model_clas.pkl")
+model_reg = load_file("model_reg.pkl")
 
 def get_input():
 
