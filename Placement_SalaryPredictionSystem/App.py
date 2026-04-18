@@ -73,7 +73,7 @@ def get_input():
 
         city_tier = st.selectbox("City Tier", ["Tier 1", "Tier 2", "Tier 3"])
 
-        submitted = st.form_submit_button("🚀 Predict")
+        submitted = st.form_submit_button("Predict")
 
     if submitted:
         return pd.DataFrame([{
