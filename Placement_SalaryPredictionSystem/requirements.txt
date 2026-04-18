@@ -2,7 +2,7 @@ streamlit
 pandas
 joblib
 mlflow
-scikit-learn==1.7.1
+scikit-learn
 xgboost
 seaborn
 matplotlib
