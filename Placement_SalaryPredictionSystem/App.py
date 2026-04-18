@@ -125,7 +125,6 @@ def main():
 
         if placed == 0:
             st.error("### Prediction: Not Placed")
-            st.write("Saran: Tingkatkan nilai CGPA dan ikuti lebih banyak magang (internship).")
         else:
             st.success("### Prediction: Placed")
             
