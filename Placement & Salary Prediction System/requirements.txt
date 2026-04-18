@@ -1,9 +1,0 @@
-streamlit
-pandas
-joblib
-mlflow
-scikit-learn
-xgboost
-seaborn
-matplotlib
-pathlib
