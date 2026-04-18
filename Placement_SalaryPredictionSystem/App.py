@@ -107,7 +107,7 @@ def get_input():
     return None
 
 def main():
-    st.set_page_config(page_title="Placement Predictor", page_icon="🎓")
+    st.set_page_config(page_title="Placement Predictor")
     st.title("Placement & Salary Prediction System")
     
     input_df = get_input()
