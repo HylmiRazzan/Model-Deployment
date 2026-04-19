@@ -106,7 +106,7 @@ def get_input():
 
 def main():
     st.set_page_config(page_title="Placement Predictor", layout="wide")
-    st.title("🎓 Placement & Salary Prediction System")
+    st.title("Placement & Salary Prediction System")
     
     input_df = get_input()
 
@@ -118,16 +118,15 @@ def main():
         X_df = pd.DataFrame(X_transformed, columns=feature_names)
 
     
-        y_proba = model_clas.predict_proba(X_df)[:, 1][0]
-        placed = 1 if y_proba >= 0.32 else 0 
+        placed = model_clas.predict(X_df)[0]
 
         st.markdown("---")
         st.subheader("Prediction Results")
 
         if placed == 0:
-            st.error(f"### Prediction: Not Placed (Confidence: {1-y_proba:.2%})")
+            st.error(f"### Prediction: Not Placed")
         else:
-            st.success(f"### Prediction: Placed (Confidence: {y_proba:.2%})")
+            st.success(f"### Prediction: Placed")
             
             salary = model_reg.predict(X_df)[0]
             st.metric(label="Estimated Salary (LPA)", value=f"{salary:.2f}")
