@@ -1,9 +1,9 @@
 import streamlit as st
 import joblib
 import pandas as pd
+import numpy as np
 from pathlib import Path
 
-# --- KONFIGURASI PATH ---
 BASE_DIR = Path(__file__).resolve().parent
 
 def load_file(filename):
@@ -18,6 +18,7 @@ def load_file(filename):
         st.error(f"File '{filename}' Not Found.")
         st.stop()
 
+# Load Artifacts
 artifact = load_file("preprocess_artifact.pkl")
 preprocess = artifact["preprocessor"]
 feature_names = artifact["feature_names"]
@@ -42,24 +43,17 @@ def get_input():
             attendance = st.number_input("Attendance %", 0, 100, 80)
             projects = st.number_input("Projects", 0, 20, 2)
             internships = st.number_input("Internships", 0, 10, 1)
-            coding = st.number_input("Coding Skill", 0, 10, 5)
-            comm = st.number_input("Communication", 0, 10, 5)
+            coding = st.number_input("Coding Skill (0-10)", 0, 10, 5)
+            comm = st.number_input("Communication (0-10)", 0, 10, 5)
 
         with col3:
-            aptitude = st.number_input("Aptitude", 0, 10, 5)
+            aptitude = st.number_input("Aptitude (0-10)", 0, 10, 5)
             hackathons = st.number_input("Hackathons", 0, 10, 0)
             cert = st.number_input("Certifications", 0, 10, 1)
             sleep = st.number_input("Sleep Hours", 0, 12, 6)
             stress = st.number_input("Stress Level", 0, 10, 5)
 
         st.divider()
-        col_m1, col_m2, col_m3 = st.columns(3)
-        with col_m1:
-            market = st.number_input("Marketability", 0, 10, 5)
-        with col_m2:
-            external = st.number_input("External Score", 0, 10, 5)
-        with col_m3:
-            potential = st.number_input("Potential", 0, 10, 5)
 
         col_cat1, col_cat2 = st.columns(2)
         with col_cat1:
@@ -77,6 +71,10 @@ def get_input():
         submitted = st.form_submit_button("Predict Now")
 
     if submitted:
+        marketability = (cgpa * 0.4) + (coding * 0.4) + (internships * 0.3) + (projects * 0.2)
+        external = (hackathons * 0.8) + (cert * 0.2)
+        potential = aptitude / (backlogs + 1)
+
         return pd.DataFrame([{
             "cgpa": cgpa,
             "tenth_percentage": tenth,
@@ -93,9 +91,9 @@ def get_input():
             "certifications_count": cert,
             "sleep_hours": sleep,
             "stress_level": stress,
-            "Marketability": market,
-            "External": external,
-            "Potential": potential,
+            "Marketability": marketability,
+            "External": external,          
+            "Potential": potential,         
             "gender": gender,
             "branch": branch,
             "part_time_job": part_time,
@@ -107,29 +105,31 @@ def get_input():
     return None
 
 def main():
-    st.set_page_config(page_title="Placement Predictor")
-    st.title("Placement & Salary Prediction System")
+    st.set_page_config(page_title="Placement Predictor", layout="wide")
+    st.title("🎓 Placement & Salary Prediction System")
     
     input_df = get_input()
 
     if input_df is not None:
-        # Transformasi Data
-        X_transformed = preprocess.transform(input_df)
-        X = pd.DataFrame(X_transformed, columns=feature_names)
+        
+        st.info(f"**Calculated Metrics:** Marketability: {input_df['Marketability'][0]:.2f} | External: {input_df['External'][0]:.2f} | Potential: {input_df['Potential'][0]:.2f}")
 
-        # Prediksi Klasifikasi
-        placed = model_clas.predict(X)[0]
+        X_transformed = preprocess.transform(input_df)
+        X_df = pd.DataFrame(X_transformed, columns=feature_names)
+
+    
+        y_proba = model_clas.predict_proba(X_df)[:, 1][0]
+        placed = 1 if y_proba >= 0.32 else 0 
 
         st.markdown("---")
         st.subheader("Prediction Results")
 
         if placed == 0:
-            st.error("### Prediction: Not Placed")
+            st.error(f"### Prediction: Not Placed (Confidence: {1-y_proba:.2%})")
         else:
-            st.success("### Prediction: Placed")
+            st.success(f"### Prediction: Placed (Confidence: {y_proba:.2%})")
             
-            # Prediksi Regresi (Hanya jika Placed)
-            salary = model_reg.predict(X)[0]
+            salary = model_reg.predict(X_df)[0]
             st.metric(label="Estimated Salary (LPA)", value=f"{salary:.2f}")
 
 if __name__ == "__main__":
