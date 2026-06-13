@@ -2,6 +2,7 @@ import streamlit as st
 import joblib
 import pandas as pd
 from pathlib import Path
+from imblearn.pipeline import Pipeline as ImbPipeline
 
 # Penentuan direktori utama secara dinamis
 BASE_DIR = Path(__file__).resolve().parent
