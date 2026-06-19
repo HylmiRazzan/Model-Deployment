@@ -18,7 +18,7 @@ def load_file(filename):
         st.error(f"File '{filename}' not found!")
         st.stop()
 
-model_pipeline = load_file("score_prediction_random_forest.pkl")
+model_pipeline = load_file("score_prediction_xgboost.pkl")
 
 def get_input():
     with st.form("input_form"):
