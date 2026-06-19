@@ -64,7 +64,7 @@ def get_input():
             value_payment = st.selectbox("Value Payment", ["small", "medium", "large"])
 
         st.divider()
-        st.subheader("Informasi Jenis Pinjaman")
+        st.subheader("Type of Loan")
         
         col7, col8, col9 = st.columns(3)
         with col7:
