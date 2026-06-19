@@ -4,11 +4,9 @@ import pandas as pd
 from pathlib import Path
 from imblearn.pipeline import Pipeline as ImbPipeline
 
-# Penentuan direktori utama secara dinamis
 BASE_DIR = Path(__file__).resolve().parent
 
 def load_file(filename):
-    """Mencari file model di folder artifacts atau di folder utama."""
     path_artifacts = BASE_DIR / "artifacts" / filename
     path_root = BASE_DIR / filename
     
@@ -17,16 +15,14 @@ def load_file(filename):
     elif path_root.exists():
         return joblib.load(path_root)
     else:
-        st.error(f"File '{filename}' tidak ditemukan di folder artifacts maupun root.")
+        st.error(f"File '{filename}' not found!")
         st.stop()
 
-# 1. Memuat Pipeline Keseluruhan (Preprocessor + Model sekaligus)
-# Pastikan Anda memanggil model terbaik Anda dari tahap sebelumnya
-model_pipeline = load_file("score_prediction_xgboost.pkl")
+model_pipeline = load_file("score_prediction_random_forest.pkl")
 
 def get_input():
     with st.form("input_form"):
-        st.subheader("Input Data Nasabah")
+        st.subheader("Input Data")
 
         col1, col2, col3 = st.columns(3)
 
@@ -59,8 +55,6 @@ def get_input():
             total_emi = st.number_input("Total EMI per month", 0.0, 50000.0, 500.0)
             amount_invested = st.number_input("Amount invested monthly", 0.0, 50000.0, 100.0)
             monthly_balance = st.number_input("Monthly Balance", 0.0, 100000.0, 300.0)
-            
-            # Input menggunakan bulan sesuai permintaan
             credit_history_months = st.number_input("Credit History Age", 0, 600, 48)
 
         with col5:
@@ -92,11 +86,9 @@ def get_input():
         submitted = st.form_submit_button("Predict Now")
 
     if submitted:
-        # Fungsi internal untuk konversi Yes/No menjadi 1/0
         def to_bin(val):
             return 1 if val == "Yes" else 0
             
-        # Mengembalikan DataFrame satu baris untuk langsung dieksekusi model
         return pd.DataFrame([{
             "Age": age,
             "Annual_Income": annual_income,
@@ -114,8 +106,7 @@ def get_input():
             "Amount_invested_monthly": amount_invested,
             "Monthly_Balance": monthly_balance,
             "Credit_Utilization_Ratio": credit_utilization,
-            
-            # Dibagi 12 karena model dilatih menggunakan format tahun
+        
             "Credit_History_Age": credit_history_months, 
             
             "Month": month,
@@ -124,8 +115,6 @@ def get_input():
             "Payment_of_Min_Amount": payment_min,
             "Spent": spent,
             "Value_Payment": value_payment,
-            
-            # Pemanggilan fungsi to_bin untuk logika biner pinjaman
             "Auto Loan": to_bin(auto_loan),
             "Credit-Builder Loan": to_bin(credit_builder),
             "Debt Consolidation Loan": to_bin(debt_consolidation),
@@ -141,16 +130,13 @@ def get_input():
 
 def main():
     st.set_page_config(page_title="Credit Score Predictor", layout="wide")
-    st.title("Sistem Klasifikasi Skor Kredit")
+    st.title("Classification Credit Score System")
     
     input_df = get_input()
 
     if input_df is not None:
         
-        # Eksekusi langsung ke pipeline (sudah termasuk transform dan predict)
         prediction_code = model_pipeline.predict(input_df)[0]
-        
-        # Mapping dari output numerik model (0, 1, 2) ke label teks
         mapping_balik = {0: 'Poor', 1: 'Standard', 2: 'Good'}
         status = mapping_balik.get(prediction_code, "Unknown")
 
